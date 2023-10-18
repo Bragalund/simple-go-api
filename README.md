@@ -2,13 +2,21 @@
 
 ## Needed software  
 
-1. nix  
+1. nix-shell   
 
 ## How to run  
 
+Locally
+
 ```shell
-nix-shell  
-go run main.go
+nix-shell           # enter shell with all dependencies 
+go run main.go      # run application
+```
+
+With docker  
+
+```shell
+docker build -t go-api:latest .; docker run -p 8080:8080 go-api:latest
 ```
 
 ## How to use  
