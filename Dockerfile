@@ -1,22 +1,30 @@
-FROM golang:latest AS BuildStage
+# syntax=docker/dockerfile:1
 
-COPY . .  
+# Build the application from source
+FROM golang:1.19 AS build-stage
 
-# pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
+WORKDIR /app
+
 COPY go.mod go.sum ./
-RUN go mod download && go mod verify
+RUN go mod download
 
-EXPOSE 8000  
-RUN go mod init
-RUN go build -o go_api 
+COPY *.go ./
 
-FROM alpine:latest  
+RUN CGO_ENABLED=0 GOOS=linux go build -o /go-api
 
-WORKDIR /  
+# Run the tests in the container
+FROM build-stage AS run-test-stage
+RUN go test -v ./...
 
-COPY --from=BuildStage go_api go_api
+# Deploy the application binary into a lean image
+FROM gcr.io/distroless/base-debian11 AS build-release-stage
 
-EXPOSE 8000  
+WORKDIR /
 
-ENTRYPOINT go_api
+COPY --from=build-stage /go-api /go-api
 
+EXPOSE 8080
+
+USER nonroot:nonroot
+
+ENTRYPOINT ["/go-api"]
