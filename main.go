@@ -1,15 +1,17 @@
-package main  
+// This is a rest api that returns json data about books
+package main
 
 import (
-    "net/http"
-    "github.com/gin-gonic/gin"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type book struct {
-    ID          string  `json:"id"`
-    Title       string  `json:"title"`
-    Author      string  `json:"author"`
-    Quantity    int     `json:"quantity"`
+	ID       string `json:"id"`
+	Title    string `json:"title"`
+	Author   string `json:"author"`
+	Quantity int    `json:"quantity"`
 }
 
 var books = []book{
@@ -18,27 +20,25 @@ var books = []book{
 	{ID: "3", Title: "War and Peace", Author: "Leo Tolstoy", Quantity: 6},
 }
 
-func getBooks(c *gin.Context){
-    // makes all json be nicely indented and http statuscode will be 200 OK  
-   c.IndentedJSON(http.StatusOK, books); 
+func getBooks(c *gin.Context) {
+	// makes all json be nicely indented and http statuscode will be 200 OK
+	c.IndentedJSON(http.StatusOK, books)
 }
 
 func createBook(c *gin.Context) {
-    var newBook book  
+	var newBook book
 
-    if err := c.BindJSON(&newBook); err != nil {
-    return
-    }
+	if err := c.BindJSON(&newBook); err != nil {
+		return
+	}
 
-    books = append(books, newBook)
-    c.IndentedJSON(http.StatusCreated, newBook)
+	books = append(books, newBook)
+	c.IndentedJSON(http.StatusCreated, newBook)
 }
 
 func main() {
-    router := gin.Default()
-    router.GET("/books", getBooks) // http://localhost:8080/books returns json
-    router.POST("/books", createBook)
-    router.Run("localhost:8080")
+	router := gin.Default()
+	router.GET("/books", getBooks) // http://localhost:8080/books returns json
+	router.POST("/books", createBook)
+	router.Run("localhost:8080")
 }
-
-
